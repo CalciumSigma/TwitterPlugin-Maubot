@@ -1,0 +1,10 @@
+# Insert your Twitter API Key
+Twitter_API_Key: "<TwitterAPIKey>"
+
+# Should the Bot return:
+# Videos (Including Gifs)
+Send_videos: true
+# Images
+Send_photos: true
+# Tweet Text (Including Username)
+Send_text: true
