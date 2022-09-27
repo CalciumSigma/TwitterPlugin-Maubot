@@ -37,6 +37,7 @@ class TwitterPostPlugin(Plugin):
             return
         for url_tup in twitter_pattern.findall(evt.content.body):
 
+            # Make Twitter API HTTP string, and check if valid response
             await evt.mark_read()
             tweet_id = ''.join(url_tup)
             query_url = "https://api.twitter.com/2/tweets?ids=" + (tweet_id) + \
@@ -48,7 +49,10 @@ class TwitterPostPlugin(Plugin):
                 self.log.warning(f"Unexpected status fetching Twitter Post {query_url}: {response.status}")
                 return None
 
+            # Start reading HTTP response as json to get tweet info
             json_str = response.json()
+
+            # Send Tweet Username and text
             if self.config["Send_text"] == True :
                 # Painfully bad code because I don't know nearly enough about Python/JSONs to do this better
                 for user_info in json_str['includes']['users']:
@@ -61,9 +65,10 @@ class TwitterPostPlugin(Plugin):
                 text = (json_str['data'][0]['text'])
                 await evt.respond(text)
 
+            # Send Tweet videos and pictures
             for media_info in json_str['includes']['media']:
+                # Check for videos and gifs, get link and file extension of highest quality file
                 if (media_info['type'] == "video" or media_info['type'] == "animated_gif") and self.config["Send_videos"] == True:
-                    self.log.warning(f"JSON {media_info}")
                     for video_object in media_info['variants'][::-1] :
                         if video_object['content_type'] == 'video/mp4' :
                             media_url = video_url_pattern.findall(video_object['url'])[0]
@@ -71,30 +76,31 @@ class TwitterPostPlugin(Plugin):
                             self.log.warning(f"URL/Name {media_url}: {media_name}")
                             mime_type = mimetypes.guess_type(media_name)[0]
                             break
+                # Check for pictures, get link and file extension
                 elif media_info['type'] == "photo" and self.config["Send_photos"]:
                     media_url = (media_info['url'])
                     media_name = image_pattern.search(media_info['url'])[0]
                     mime_type = mimetypes.guess_type(media_url)[0]
+                # Unknown file type, return warning
                 else :
                     self.log.warning(f"Unexpected media type {media_info['type']}, tweet ID {tweet_id}")
                     return None
 
+                # Get the file
                 response = await self.http.get(media_url)
                 if response.status != 200:
                     self.log.warning(f"Unexpected status fetching media {media_url}: {response.status}")
                     return None
 
-                self.log.warning(f"mime_type {mime_type}")
-
                 file_name = media_name
                 media = await response.read()
 
-                self.log.warning(f"filename {file_name}")
-
+                # Send message with Image
                 if "image" in mime_type:
                     uri = await self.client.upload_media(media, mime_type=mime_type, filename=file_name)
                     await self.client.send_image(evt.room_id, url=uri, file_name=file_name,
                                                  info=ImageInfo(mimetype=mime_type))
+                # Send video, getting height and width of video file
                 elif "video" in mime_type:
                     uri = await self.client.upload_media(media, mime_type=mime_type, filename=file_name)
                     uri_parts = stored_media_pattern.findall(uri)
@@ -107,6 +113,7 @@ class TwitterPostPlugin(Plugin):
                     await self.client.send_file( evt.room_id, url=uri,
                                                 info=VideoInfo(height=int(height), width=int(width), mimetype=mime_type, size=len(media)),
                                                 file_name=file_name, file_type=MessageType.VIDEO )
+                # Error for unknown media type
                 else:
                     self.log.warning(f"Unknown media type {query_url}: {mime_type}")
                     return None
