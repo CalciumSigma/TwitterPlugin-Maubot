@@ -73,7 +73,6 @@ class TwitterPostPlugin(Plugin):
                         if video_object['content_type'] == 'video/mp4' :
                             media_url = video_url_pattern.findall(video_object['url'])[0]
                             media_name = video_pattern.findall(video_object['url'])[0]
-                            self.log.warning(f"URL/Name {media_url}: {media_name}")
                             mime_type = mimetypes.guess_type(media_name)[0]
                             break
                 # Check for pictures, get link and file extension
@@ -109,7 +108,8 @@ class TwitterPostPlugin(Plugin):
                     vid = cv2.VideoCapture(url)
                     height = vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
                     width = vid.get(cv2.CAP_PROP_FRAME_WIDTH)
-                    self.log.warning(f"{height}x{width}")
+                    # Printing this to logs because this is still kind of experimental
+                    self.log.info(f"{uri}:h{height}xw{width}")
                     await self.client.send_file( evt.room_id, url=uri,
                                                 info=VideoInfo(height=int(height), width=int(width), mimetype=mime_type, size=len(media)),
                                                 file_name=file_name, file_type=MessageType.VIDEO )
