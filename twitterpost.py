@@ -49,22 +49,20 @@ class TwitterPostPlugin(Plugin):
                 return None
 
             json_str = response.json()
+            if self.config["Send_text"] == True :
+                # Painfully bad code because I don't know nearly enough about Python/JSONs to do this better
+                for user_info in json_str['includes']['users']:
+                    if user_info['id'] == json_str['data'][0]['author_id']:
+                        profile_url = user_info['profile_image_url']
+                        display_name = user_info['name']
+                        user_name = user_info['username']
+                await evt.respond(display_name + " (@" + user_name + ")")
 
-            # Painfully bad code because I don't know nearly enough about Python/JSONs to do this better
-            for user_info in json_str['includes']['users']:
-                if user_info['id'] == json_str['data'][0]['author_id']:
-                    profile_url = user_info['profile_image_url']
-                    display_name = user_info['name']
-                    user_name = user_info['username']
-
-            # await evt.respond(display_name + " (@" + user_name + ")")
-
-            text = (json_str['data'][0]['text'])
-
-            # await evt.respond(text)
+                text = (json_str['data'][0]['text'])
+                await evt.respond(text)
 
             for media_info in json_str['includes']['media']:
-                if media_info['type'] == "video" or media_info['type'] == "animated_gif":
+                if (media_info['type'] == "video" or media_info['type'] == "animated_gif") and self.config["Send_videos"] == True:
                     self.log.warning(f"JSON {media_info}")
                     for video_object in media_info['variants'][::-1] :
                         if video_object['content_type'] == 'video/mp4' :
@@ -73,7 +71,7 @@ class TwitterPostPlugin(Plugin):
                             self.log.warning(f"URL/Name {media_url}: {media_name}")
                             mime_type = mimetypes.guess_type(media_name)[0]
                             break
-                elif media_info['type'] == "photo":
+                elif media_info['type'] == "photo" and self.config["Send_photos"]:
                     media_url = (media_info['url'])
                     media_name = image_pattern.search(media_info['url'])[0]
                     mime_type = mimetypes.guess_type(media_url)[0]
