@@ -54,7 +54,6 @@ class TwitterPostPlugin(Plugin):
 
             # Send Tweet Username and text
             if self.config["Send_text"] == True :
-                # Painfully bad code because I don't know nearly enough about Python/JSONs to do this better
                 for user_info in json_str['includes']['users']:
                     if user_info['id'] == json_str['data'][0]['author_id']:
                         profile_url = user_info['profile_image_url']
@@ -103,13 +102,10 @@ class TwitterPostPlugin(Plugin):
                 elif "video" in mime_type:
                     uri = await self.client.upload_media(media, mime_type=mime_type, filename=file_name)
                     uri_parts = stored_media_pattern.findall(uri)
-                    self.log.warning(f"{uri_parts}")
                     url = "https://" + uri_parts[0][1] + "_matrix/media/r0/download/" + uri_parts[0][0]
                     vid = cv2.VideoCapture(url)
                     height = vid.get(cv2.CAP_PROP_FRAME_HEIGHT)
                     width = vid.get(cv2.CAP_PROP_FRAME_WIDTH)
-                    # Printing this to logs because this is still kind of experimental
-                    self.log.info(f"{uri}:h{height}xw{width}")
                     await self.client.send_file( evt.room_id, url=uri,
                                                 info=VideoInfo(height=int(height), width=int(width), mimetype=mime_type, size=len(media)),
                                                 file_name=file_name, file_type=MessageType.VIDEO )

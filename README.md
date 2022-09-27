@@ -3,11 +3,12 @@ Responds to Twitter posts with teet username, text, and attached images/videos
 
 ## Usage
 - Needs cv2 module
-- Compile yourself (Will release prepackaged versions when code is in a state I deem reasonable)
+- Compile yourself, or download Prepackaged version from releases
 - Upload to Maubot manager, and insert Twitter API key in config
-## What works
-Videos and GIFs, but only sometimes. GIFS don't work on mobile (this has to do with how twitter gifs are saved on twitter's servers), and I need to get a better way to get media URLS once uploaded to the server.
+## Features
+- Sending tweets and usernames as text
+- Sending pictures from tweets
+- Sending videos/GIFS from tweets, with the correct file dimensions (Twitter GIFS don't work on some platforms like mobile Element and SchildiChat)
+- Config settings for which parts of the tweets will be sent
 ## TODO
-- Find a better way to get full url of file after uploading to server
-- Clean the code to eliminate unecessary loops 
-- Fix GIFS for mobile devices (maybe) (perhaps need to convert file before upload)
+- Fix GIFS for mobile devices (perhaps need to convert file before upload)
