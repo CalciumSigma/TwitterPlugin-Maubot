@@ -1,10 +1,8 @@
 import re, json, mimetypes
 from typing import Type
-import requests
 import cv2
-from urllib.parse import quote, urlparse
+from urllib.request import Request, urlopen
 from mautrix.types import VideoInfo, ImageInfo, EventType, MessageType
-from mautrix.types.event.message import BaseFileInfo, Format, TextMessageEventContent
 from mautrix.util.config import BaseProxyConfig, ConfigUpdateHelper
 from maubot import Plugin, MessageEvent
 from maubot.handlers import event
@@ -43,14 +41,15 @@ class TwitterPostPlugin(Plugin):
             query_url = "https://api.twitter.com/2/tweets?ids=" + (tweet_id) + \
                         "&expansions=attachments.media_keys,author_id&media.fields=media_key,type,variants,url&user.fields=profile_image_url"
             headers = {'Authorization': 'Bearer ' + self.config["Twitter_API_Key"]}
-            response = requests.get(query_url, headers=headers)
+            req = Request(query_url, headers=headers)
+            response = urlopen(req)
 
-            if response.status_code != 200:
+            if response.status != 200:
                 self.log.warning(f"Unexpected status fetching Twitter Post {query_url}: {response.status}")
                 return None
 
             # Start reading HTTP response as json to get tweet info
-            json_str = response.json()
+            json_str = json.loads(response.read().decode())
 
             # Send Tweet Username and text
             if self.config["Send_text"] == True :

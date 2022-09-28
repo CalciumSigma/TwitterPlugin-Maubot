@@ -9,7 +9,7 @@ maubot: 0.1.0
 id: com.calciumsigma.maubot.twitterpost
 
 # A PEP 440 compliant version string.
-version: 0.0.1
+version: 0.1.0
 
 # The SPDX license identifier for the plugin. https://spdx.org/licenses/
 # Optional, assumes all rights reserved if omitted.
@@ -21,6 +21,7 @@ license: MIT
 # However, top-level modules must always be listed even if they're imported by other modules.
 modules:
 - twitterpost
+
 #- config
 # The main class of the plugin. Format: module/Class
 # If `module` is omitted, will default to last module specified in the module list.
