@@ -15,10 +15,10 @@ class Config(BaseProxyConfig):
         helper.copy("Send_photos")
         helper.copy("Send_text")
 
-twitter_pattern = re.compile(r"^(?:https:?\/\/)?(?:(?:www|m)\.)?(?:(?:vx)?twitter\.com)(?:\/.*\/status\/)(\d+)(?:\?.*)?$")
-image_pattern = re.compile(r"^(?:https:?\/\/)(?:pbs\.)(?:twimg\.com\/)(?:media\/)(.*)$")
-video_pattern = re.compile(r"(?:https:?\/\/)(?:video\.)(?:twimg\.com\/)(?:(?:tweet_video\/)|(?:\w+\/\d+\/(?:pu\/)?vid\/\w+\/))(.\w+..\w+)(?:\?.*)?")
-video_url_pattern = re.compile(r"(https:?\/\/video\.twimg\.com\/\w+\/(?:\d+\/(?:pu\/)?vid\/\w+\/)?\w+.\w+)(?:\?.*)?")
+twitter_pattern = re.compile(r"^(?:https?:\/\/)?(?:(?:www|m)\.)?(?:(?:vx)?twitter\.com)(?:\/.*\/status\/)(\d+)(?:\?.*)?$")
+image_pattern = re.compile(r"^(?:https?:\/\/)(?:pbs\.)(?:twimg\.com\/)(?:media\/)(.*)$")
+video_pattern = re.compile(r"(?:https?:\/\/)(?:video\.)(?:twimg\.com\/)(?:(?:tweet_video\/)|(?:\w+\/\d+\/(?:pu\/)?vid\/\w+\/))([^.?]+\.\w+)(?:\?.*)?")
+video_url_pattern = re.compile(r"(https?:\/\/video\.twimg\.com\/\w+\/(?:\d+\/(?:pu\/)?vid\/\w+\/)?[^.?]+.\w+)(?:\?.*)?")
 stored_media_pattern = re.compile(r"(?:mxc:\/\/)((.*\/)(?:\w+))")
 
 class TwitterPostPlugin(Plugin):
@@ -69,6 +69,7 @@ class TwitterPostPlugin(Plugin):
                 if (media_info['type'] == "video" or media_info['type'] == "animated_gif") and self.config["Send_videos"] == True:
                     for video_object in media_info['variants'][::-1] :
                         if video_object['content_type'] == 'video/mp4' :
+                            self.log.info(f"URL{video_object['url']}")
                             media_url = video_url_pattern.findall(video_object['url'])[0]
                             media_name = video_pattern.findall(video_object['url'])[0]
                             mime_type = mimetypes.guess_type(media_name)[0]
