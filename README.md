@@ -11,4 +11,4 @@ Responds to Twitter posts with teet username, text, and attached images/videos
 - Sending videos/GIFS from tweets, with the correct file dimensions (Twitter GIFS don't work on some platforms like mobile Element and SchildiChat)
 - Config settings for which parts of the tweets will be sent
 ## TODO
-- Fix GIFS for mobile devices (perhaps need to convert file before upload)
+- Improve implementation for sending GIFS
