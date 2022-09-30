@@ -1,4 +1,5 @@
 import re, json, mimetypes
+import imageio
 from typing import Type
 import cv2
 from urllib.request import Request, urlopen
@@ -65,13 +66,21 @@ class TwitterPostPlugin(Plugin):
 
             # Send Tweet videos and pictures
             for media_info in json_str['includes']['media']:
-                # Check for videos and gifs, get link and file extension of highest quality file
-                if (media_info['type'] == "video" or media_info['type'] == "animated_gif") and self.config["Send_videos"] == True:
+                # Check for videos, get link and file extension of highest quality file
+                if media_info['type'] == "video" and self.config["Send_videos"] == True:
                     for video_object in media_info['variants'][::-1] :
                         if video_object['content_type'] == 'video/mp4' :
                             self.log.info(f"URL{video_object['url']}")
                             media_url = video_url_pattern.findall(video_object['url'])[0]
                             media_name = video_pattern.findall(video_object['url'])[0]
+                            mime_type = mimetypes.guess_type(media_name)[0]
+                            break
+                # Check for GIFS
+                elif media_info['type'] == "animated_gif" and self.config["Send_videos"] == True:
+                    for video_object in media_info['variants'][::-1] :
+                        if video_object['content_type'] == 'video/mp4' :
+                            media_url = video_url_pattern.findall(video_object['url'])[0]
+                            media_name = video_pattern.findall(video_object['url'])[0] + ".gif"
                             mime_type = mimetypes.guess_type(media_name)[0]
                             break
                 # Check for pictures, get link and file extension
@@ -91,10 +100,25 @@ class TwitterPostPlugin(Plugin):
                     return None
 
                 file_name = media_name
+                self.log.info(f"media name: {media_name} {mime_type}")
                 media = await response.read()
 
+                #Initial testing of sending Twitter GIFs..... as a GIF
+                if "image/gif" in mime_type:
+                    image_lst = []
+                    cap = cv2.VideoCapture(media_url)
+                    fps = cap.get(cv2.CAP_PROP_FPS)
+                    success = True
+                    while success:
+                        success, image = cap.read()
+                        if success:
+                            frame_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                            image_lst.append(frame_rgb)
+                    bytes_image = imageio.mimwrite('<bytes>', image_lst, format=".gif", fps=fps)
+                    uri = await self.client.upload_media(bytes_image, mime_type=mime_type, filename=file_name)
+                    await self.client.send_image(evt.room_id, url = uri, file_name=file_name, info=ImageInfo(mimetype=mime_type))
                 # Send message with Image
-                if "image" in mime_type:
+                elif "image" in mime_type:
                     uri = await self.client.upload_media(media, mime_type=mime_type, filename=file_name)
                     await self.client.send_image(evt.room_id, url=uri, file_name=file_name,
                                                  info=ImageInfo(mimetype=mime_type))
