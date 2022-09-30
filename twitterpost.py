@@ -15,7 +15,7 @@ class Config(BaseProxyConfig):
         helper.copy("Send_photos")
         helper.copy("Send_text")
 
-twitter_pattern = re.compile(r"^(?:https?:\/\/)?(?:(?:www|m)\.)?(?:(?:vx)?twitter\.com)(?:\/.*\/status\/)(\d+)(?:\?.*)?$")
+twitter_pattern = re.compile(r"^(?:https?:\/\/)?(?:(?:www|m)\.)?(?:(?:vx|fx)?twitter\.com)(?:\/.*\/status\/)(\d+)(?:\?.*)?$")
 image_pattern = re.compile(r"^(?:https?:\/\/)(?:pbs\.)(?:twimg\.com\/)(?:media\/)(.*)$")
 video_pattern = re.compile(r"(?:https?:\/\/)(?:video\.)(?:twimg\.com\/)(?:(?:tweet_video\/)|(?:\w+\/\d+\/(?:pu\/)?vid\/\w+\/))([^.?]+\.\w+)(?:\?.*)?")
 video_url_pattern = re.compile(r"(https?:\/\/video\.twimg\.com\/\w+\/(?:\d+\/(?:pu\/)?vid\/\w+\/)?[^.?]+.\w+)(?:\?.*)?")
