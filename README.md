@@ -1,5 +1,5 @@
 # TwitterPlugin-Maubot
-Responds to Twitter posts with teet username, text, and attached images/videos
+Responds to Twitter posts with tweet username, text, and attached images/videos
 
 ## Usage
 - Needs cv2, imageio, and pillow modules
