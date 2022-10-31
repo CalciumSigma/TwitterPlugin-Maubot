@@ -53,7 +53,7 @@ class TwitterPostPlugin(Plugin):
             json_str = json.loads(response.read().decode())
 
             # Send Tweet Username and text
-            if self.config["Send_text"] == True :
+            if self.config["Send_text"] == True:
                 for user_info in json_str['includes']['users']:
                     if user_info['id'] == json_str['data'][0]['author_id']:
                         profile_url = user_info['profile_image_url']
